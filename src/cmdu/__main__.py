@@ -33,9 +33,9 @@ if __name__ == '__main__':
         exit(0)
     if args.command == "yaml2json":
         data = "\n".join(sys.stdin.readlines())
-        sys.stdout.write(yaml2json(data, args.indent if args.pretty else None))
+        sys.stdout.write(yaml2json(data, int(args.indent) if args.pretty else None))
         exit(0)
     if args.command == "json2json":
         data = "\n".join(sys.stdin.readlines())
-        sys.stdout.write(as_json(load_json(data), args.indent if args.pretty else None))
+        sys.stdout.write(as_json(load_json(data), int(args.indent) if args.pretty else None))
         exit(0)

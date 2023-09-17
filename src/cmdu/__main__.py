@@ -1,4 +1,5 @@
 import argparse
+import re
 import sys
 
 from cmdu import load_json, load_yaml, as_json, as_yaml
@@ -28,6 +29,9 @@ if __name__ == '__main__':
     lines_skip_parser.add_argument("-n", "--number", default=0)
     lines_filter_parser = line_nu_parser.add_parser("filter", help="filter lines by regex [*experimental]")
     lines_filter_parser.add_argument("-r", "--regex", default=None)
+
+    lines_filter_not_parser = line_nu_parser.add_parser("filter-not", help="filter not match lines by regex [*experimental]")
+    lines_filter_not_parser.add_argument("-r", "--regex", default=None)
 
     convert_parser = sparser.add_parser("convert")
     convert_sub_parser = convert_parser.add_subparsers(dest="sub_command")
@@ -67,10 +71,14 @@ if __name__ == '__main__':
                 if count > to_be_skipped:
                     out.write(l)
         elif args.sub_command == "filter":
-            import re
             regex = re.compile(args.regex)
             for l in ins:
                 if regex.search(l):
+                    out.write(l)
+        elif args.sub_command == "filter-not":
+            regex = re.compile(args.regex)
+            for l in ins:
+                if not regex.search(l):
                     out.write(l)
         else:
             raise Exception("Sub command not support")

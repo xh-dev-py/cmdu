@@ -18,6 +18,7 @@ python -m twine upload dist/* -u __token__ -p {token}
 |   |   |-- count
 |   |   |-- skip
 |   |   |-- filter
+|   |   |-- filter-not
 |   |
 |   |-- convert
 |   |   |-- j2j
@@ -65,7 +66,7 @@ Skip the first n lines
    
 ## lines filter
 Filter any match line
-1. filter by regex, any matching in regex will make the whole line filtered
+1. filter by regex, any matching in regex will make the whole line accepted
    ```shell
    # input
    line 1
@@ -73,6 +74,21 @@ Filter any match line
    line 3
    
    python -m cmdu filter --regex "^line 1$"
+   
+   # output
+   line 1
+   ```
+   
+## lines filter not
+Filter any not match line
+1. filter by regex, any matching in regex will make the whole line rejected
+   ```shell
+   # input
+   line 1
+   line 2
+   line 3
+   
+   python -m cmdu filter-not --regex "^line 1$"
    
    # output
    line 2

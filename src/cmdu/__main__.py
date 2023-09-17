@@ -65,3 +65,4 @@ if __name__ == '__main__':
             raise Exception("Sub command not support")
     else:
         raise Exception("Command not support")
+    out.write("\n")

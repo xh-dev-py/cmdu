@@ -23,6 +23,9 @@ if __name__ == '__main__':
     line_parser = sparser.add_parser("lines")
     line_nu_parser = line_parser.add_subparsers(dest="sub_command")
     line_numberParser = line_nu_parser.add_parser("set-nu", help="pad line number to each line")
+    line_nu_parser.add_parser("count", help="calculate number of lines")
+    lines_skip_parser = line_nu_parser.add_parser("skip", help="skip number of lines")
+    lines_skip_parser.add_argument("-n", "--number", default=0)
 
     convert_parser = sparser.add_parser("convert")
     convert_sub_parser = convert_parser.add_subparsers(dest="sub_command")
@@ -49,6 +52,18 @@ if __name__ == '__main__':
             appender = LineNumberAppender()
             for l in ins:
                 out.write(appender(l))
+        elif args.sub_command == "count":
+            count = 0
+            for l in ins:
+                count += 1
+            out.write(f"{count}")
+        elif args.sub_command == "skip":
+            count = 0
+            to_be_skipped = int(args.number)
+            for l in ins:
+                count += 1
+                if count > to_be_skipped:
+                    out.write(l)
         else:
             raise Exception("Sub command not support")
     elif args.command == "convert":

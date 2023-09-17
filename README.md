@@ -17,6 +17,7 @@ python -m twine upload dist/* -u __token__ -p {token}
 |   |   |-- set-nu
 |   |   |-- count
 |   |   |-- skip
+|   |   |-- filter
 |   |
 |   |-- convert
 |   |   |-- j2j
@@ -61,6 +62,22 @@ Skip the first n lines
     # output
     line 3
     ```
+   
+## lines filter
+Filter any match line
+1. filter by regex, any matching in regex will make the whole line filtered
+   ```shell
+   # input
+   line 1
+   line 2
+   line 3
+   
+   python -m cmdu filter --regex "^line 1$"
+   
+   # output
+   line 2
+   line 3
+   ```
 
 ## convert j2j
 convert a json input (from stdin) as json output (to stdout)

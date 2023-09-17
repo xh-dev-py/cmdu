@@ -26,6 +26,8 @@ if __name__ == '__main__':
     line_nu_parser.add_parser("count", help="calculate number of lines")
     lines_skip_parser = line_nu_parser.add_parser("skip", help="skip number of lines")
     lines_skip_parser.add_argument("-n", "--number", default=0)
+    lines_filter_parser = line_nu_parser.add_parser("filter", help="filter lines by regex [*experimental]")
+    lines_filter_parser.add_argument("-r", "--regex", default=None)
 
     convert_parser = sparser.add_parser("convert")
     convert_sub_parser = convert_parser.add_subparsers(dest="sub_command")
@@ -63,6 +65,12 @@ if __name__ == '__main__':
             for l in ins:
                 count += 1
                 if count > to_be_skipped:
+                    out.write(l)
+        elif args.sub_command == "filter":
+            import re
+            regex = re.compile(args.regex)
+            for l in ins:
+                if regex.search(l):
                     out.write(l)
         else:
             raise Exception("Sub command not support")

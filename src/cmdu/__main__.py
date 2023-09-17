@@ -17,33 +17,51 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         prog='cmdu',
     )
-    sparser = parser.add_subparsers(dest="command")
     parser.add_argument("--from-file", default=None)
-    line_numberParser = sparser.add_parser("set-ln", help="pad line number to each line")
 
-    json2yamlParser = sparser.add_parser("json2yaml", help="Convert json to yaml")
-    yaml2jsonParser = sparser.add_parser("yaml2json", help="Convert yaml to json")
+    sparser = parser.add_subparsers(dest="command")
+    line_parser = sparser.add_parser("lines")
+    line_nu_parser = line_parser.add_subparsers(dest="sub_command")
+    line_numberParser = line_nu_parser.add_parser("set-nu", help="pad line number to each line")
+
+    convert_parser = sparser.add_parser("convert")
+    convert_sub_parser = convert_parser.add_subparsers(dest="sub_command")
+    json2yamlParser = convert_sub_parser.add_parser("j2y", help="Convert json to yaml")
+    yaml2jsonParser = convert_sub_parser.add_parser("y2j", help="Convert yaml to json")
     yaml2jsonParser.add_argument("-p", "--pretty", action=argparse.BooleanOptionalAction, default=False)
     yaml2jsonParser.add_argument("--indent", default=4)
-    asJsonParser = sparser.add_parser("json2json", help="Convert json string to json of specific format")
+    asJsonParser = convert_sub_parser.add_parser("j2j", help="Convert json string to json of specific format")
     asJsonParser.add_argument("-p", "--pretty", action=argparse.BooleanOptionalAction, default=False)
 
     args = parser.parse_args()
 
+    ins = sys.stdin
+    out = sys.stdout
+    sys.stdout = sys.stderr
+
     if args.from_file is not None:
         f = open(args.from_file)
-        sys.stdin = f
+        ins = f
 
-    if args.command == "set-ln":
-        appender = LineNumberAppender()
-        for l in sys.stdin:
-            sys.stdout.write(appender(l))
-    elif args.command == "json2yaml":
-        data = "\n".join(sys.stdin.readlines())
-        sys.stdout.write(json2yaml(data))
-    elif args.command == "yaml2json":
-        data = "\n".join(sys.stdin.readlines())
-        sys.stdout.write(yaml2json(data, int(args.indent) if args.pretty else None))
-    elif args.command == "json2json":
-        data = "\n".join(sys.stdin.readlines())
-        sys.stdout.write(as_json(load_json(data), int(args.indent) if args.pretty else None))
+    if args.command == "lines":
+        cmd = args.command
+        if args.sub_command == "set-nu":
+            appender = LineNumberAppender()
+            for l in ins:
+                out.write(appender(l))
+        else:
+            raise Exception("Sub command not support")
+    elif args.command == "convert":
+        if args.sub_command == "j2y":
+            data = "\n".join(ins.readlines())
+            out.write(json2yaml(data))
+        elif args.sub_command == "y2j":
+            data = "\n".join(ins.readlines())
+            out.write(yaml2json(data, int(args.indent) if args.pretty else None))
+        elif args.sub_command == "j2j":
+            data = "\n".join(ins.readlines())
+            out.write(as_json(load_json(data), int(args.indent) if args.pretty else None))
+        else:
+            raise Exception("Sub command not support")
+    else:
+        raise Exception("Command not support")

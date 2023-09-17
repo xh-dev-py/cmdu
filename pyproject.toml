@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cmdu"
-version = "0.0.3"
+version = "0.0.4"
 description = "A small command line library for daily tasks."
 readme = "README.md"
 requires-python = ">=3.7"

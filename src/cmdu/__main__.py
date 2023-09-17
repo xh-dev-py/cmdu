@@ -27,7 +27,6 @@ if __name__ == '__main__':
     asJsonParser.add_argument("--indent", default=4)
 
     args = parser.parse_args()
-    print(args)
     if args.command == "json2yaml":
         data = "\n".join(sys.stdin.readlines())
         sys.stdout.write(json2yaml(data))

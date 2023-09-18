@@ -7,7 +7,7 @@ class LineNumberAppender:
         number_line = format_str.format(i)
         return f"{number_line} |{v}"
 
-    def __call__(self, line: str, format_str="{:06d}") -> str:
+    def append(self, line: str, format_str="{:06d}") -> str:
         ln = self.line_number
         self.line_number += 1
         return LineNumberAppender.formatting(ln, line, format_str)

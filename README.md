@@ -13,6 +13,11 @@ python -m twine upload dist/* -u __token__ -p {token}
 # Commands
 ```
 |-- cmdu
+|   |-- check-list
+|   |   |-- create
+|   |   |-- check
+|   |   |-- uncheck
+|   |
 |   |-- lnes
 |   |   |-- set-nu
 |   |   |-- count
@@ -26,6 +31,84 @@ python -m twine upload dist/* -u __token__ -p {token}
 |   |   |-- y2j
 |   |
 ```
+
+## check-list create
+create line by line record to check list
+```shell
+# input
+line 1
+line 2
+
+line 3
+
+python -m cmdu check-list create
+
+# output
+[ ] 000001 |line 1
+[ ] 000002 |line 2
+
+[ ] 000003 |line 3
+```
+
+## check-list load
+load check list from different format (simple, json, yaml) into other format (simple, json, yaml)
+```shell
+# input
+[ ] 000001 |line 1
+[x] 000002 |line 2
+
+[X] 000003 |line 3
+
+python -m cmdu check-list --simple-in --yaml-out
+
+# out
+- checked: false
+  id: '000001'
+  line: item 1
+- checked: true
+  id: '000002'
+  line: item 2
+- checked: true
+  id: '000003'
+  line: item 3
+```
+
+## check-lst check 
+check the item by number 
+```shell
+# input
+[ ] 000001 |line 1
+[ ] 000002 |line 2
+
+[ ] 000003 |line 3
+
+python -m cmdu check-list check 2 3
+
+# out
+[ ] 000001 |line 1
+[X] 000002 |line 2
+
+[X] 000003 |line 3
+```
+
+## check-lst uncheck
+uncheck the item by number
+```shell
+# input
+[ ] 000001 |line 1
+[x] 000002 |line 2
+
+[X] 000003 |line 3
+
+python -m cmdu check-list check 1 2 3
+
+# out
+[ ] 000001 |line 1
+[ ] 000002 |line 2
+
+[ ] 000003 |line 3
+```
+
 ## lines set-nu
 set line number to each line, pad `000000 |` to the left
 1. `python -m cmdu lines set-nu`

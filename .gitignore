@@ -3,3 +3,5 @@ a.yaml
 .idea
 src/**/__pycache__/*
 dist
+a.items
+*.check-list

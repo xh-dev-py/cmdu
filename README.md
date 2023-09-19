@@ -13,6 +13,12 @@ python -m twine upload dist/* -u __token__ -p {token}
 # Commands
 ```
 |-- cmdu
+|   |-- file-mod
+|   |   |-- hosts
+|   |   |   |-- add
+|   |   |   |-- delete
+|   |   |   |-- delete-all
+|   |
 |   |-- check-list
 |   |   |-- create
 |   |   |-- check
@@ -31,6 +37,44 @@ python -m twine upload dist/* -u __token__ -p {token}
 |   |   |-- y2j
 |   |
 ```
+
+## file-mod hosts add
+add a host to specific ip
+```shell
+# input
+127.0.0.1 abc.com
+
+python -m cmdu file-mod hosts add -ip 127.0.0.1 -host abcx.com
+
+# output
+127.0.0.1 abc.com abcx.com
+```
+
+## file-mod hosts delete
+delete a host from specific ip
+```shell
+# input
+127.0.0.1 abc.com abcx.com
+
+python -m cmdu file-mod hosts delete -ip 127.0.0.1 -host abcx.com
+
+# output
+127.0.0.1 abc.com
+```
+
+## file-mod hosts delete-all
+delete all hosts from specific ip
+```shell
+# input
+127.0.0.1 abc.com
+127.0.0.2 abcx.com
+
+python -m cmdu file-mod hosts delete-all -ip 127.0.0.2
+
+# output
+127.0.0.2 abcx.com
+```
+
 
 ## check-list create
 create line by line record to check list

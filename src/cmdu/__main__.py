@@ -4,6 +4,7 @@ import sys
 
 from cmdu import load_json, load_yaml, as_json, as_yaml
 from cmdu.check_list import CheckListItem
+from cmdu.hosts import HostItem
 from cmdu.lines import LineNumberAppender
 
 
@@ -22,6 +23,22 @@ if __name__ == '__main__':
     parser.add_argument("--from-file", default=None)
 
     sparser = parser.add_subparsers(dest="command")
+
+    file_mod_parser = sparser.add_parser("file-mod", help="modify file")
+    file_mod_sub_parser = file_mod_parser.add_subparsers(dest="sub_command")
+    file_mod_sub_hosts_parser = file_mod_sub_parser.add_parser("hosts", help="modify hosts file")
+    file_mod_sub_hosts_sub_parser = file_mod_sub_hosts_parser.add_subparsers(dest="sub_sub_command")
+    file_mod_sub_hosts_sub_mod_parser = file_mod_sub_hosts_sub_parser.add_parser("mod", help="add hosts")
+    file_mod_sub_hosts_sub_mod_parser.add_argument("-i", "--ip", required=True, help="ip address")
+    file_mod_sub_hosts_sub_mod_action_parser = file_mod_sub_hosts_sub_mod_parser.add_mutually_exclusive_group()
+    file_mod_sub_hosts_sub_mod_action_parser.add_argument("-a", "--add", action='store_true', default=False,
+                                                          help="add a host")
+    file_mod_sub_hosts_sub_mod_action_parser.add_argument("-d", "--delete", action='store_true', default=False,
+                                                          help="delete a host")
+    file_mod_sub_hosts_sub_mod_action_parser.add_argument("--delete-all", action='store_true', default=False,
+                                                          help="delete all hosts")
+    file_mod_sub_hosts_sub_mod_parser.add_argument("--host", required=False, help="host name")
+
     check_list_parser = sparser.add_parser("check-list", help="make check list for lines")
     check_list_s_parser = check_list_parser.add_subparsers(dest="sub_command")
     check_list_s_parser.add_parser("create", help="make check list by list of lines input")
@@ -78,7 +95,57 @@ if __name__ == '__main__':
         f = open(args.from_file)
         ins = f
 
-    if args.command == "check-list":
+    if args.command == "file-mod":
+        if args.sub_command == "hosts":
+            if args.sub_sub_command == "mod":
+                if args.add:
+                    if args.host is None:
+                        raise Exception("host name is required")
+
+                    found = False
+                    for l in ins:
+                        item = HostItem.from_line(l)
+                        if item is not None and item.ip == args.ip:
+                            found = True
+                            item.add_hostname(args.host)
+                            out.write(item.to_line())
+                            out.write("\n")
+                        else:
+                            if l.endswith("\n"):
+                                out.write(l)
+                            else:
+                                out.write(l)
+                                out.write("\n")
+
+                    if not found:
+                        out.write(HostItem(args.ip, [args.host], "          ").to_line())
+                        out.write("\n")
+                elif args.delete:
+                    for l in ins:
+                        if args.host is None:
+                            raise Exception("host name is required")
+                        item = HostItem.from_line(l)
+                        if item is not None and item.ip == args.ip:
+                            item.remove_hostname(args.host)
+                            if item.valid():
+                                out.write(item.to_line())
+                                out.write("\n")
+                        else:
+                            out.write(l)
+                elif args.delete_all:
+                    for l in ins:
+                        item = HostItem.from_line(l)
+                        if item is not None and item.ip == args.ip:
+                            continue
+                        else:
+                            out.write(l)
+                else:
+                    raise Exception("Not support")
+            else:
+                raise Exception("not implemented")
+        else:
+            raise Exception("not implemented")
+    elif args.command == "check-list":
         if args.sub_command == "create":
             appender = LineNumberAppender()
             for l in ins:
@@ -110,7 +177,8 @@ if __name__ == '__main__':
                 yaml_str = as_yaml([x.to_dict() for x in in_data if x is not None])
                 out.write(yaml_str)
             elif args.json_out:
-                json_str = as_json([x.to_dict() for x in in_data if x is not None], args.indent if args.pretty else int(args.indent))
+                json_str = as_json([x.to_dict() for x in in_data if x is not None],
+                                   args.indent if args.pretty else int(args.indent))
                 out.write(json_str)
         elif args.sub_command == "uncheck":
             indexes = args.indexes

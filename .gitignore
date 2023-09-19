@@ -5,3 +5,4 @@ src/**/__pycache__/*
 dist
 a.items
 *.check-list
+hosts_sample

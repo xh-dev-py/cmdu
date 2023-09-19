@@ -84,6 +84,7 @@ if __name__ == '__main__':
     yaml2jsonParser.add_argument("--indent", default=4)
     asJsonParser = convert_sub_parser.add_parser("j2j", help="Convert json string to json of specific format")
     asJsonParser.add_argument("-p", "--pretty", action=argparse.BooleanOptionalAction, default=False)
+    asJsonParser.add_argument("--indent", default=4)
 
     args = parser.parse_args()
 

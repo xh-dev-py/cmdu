@@ -67,6 +67,17 @@ if __name__ == '__main__':
     line_numberParser = line_s_s_parser.add_parser("set-nu", help="pad line number to each line")
 
     line_s_s_parser.add_parser("count", help="calculate number of lines")
+    lines_trim_parser = line_s_s_parser.add_parser("trim", help="trim lines by delimiter")
+    lines_trim_parser.add_argument("-c", "--character", required=True, help="character to trim")
+    lines_trim_action_parser = lines_trim_parser.add_mutually_exclusive_group()
+    lines_trim_action_parser.add_argument("-l", "--left", action='store_true', default=False, help="trim left")
+    lines_trim_action_parser.add_argument("-r", "--right", action='store_true', default=False, help="trim right")
+    lines_trim_action_parser.add_argument("-a", "--all", action='store_true', default=False,
+                                          help="trim both left and right")
+
+    lines_split_parser = line_s_s_parser.add_parser("split", help="split lines by delimiter")
+    lines_split_parser.add_argument("-d", "--delimiter", required=True, help="delimiter")
+
     lines_skip_parser = line_s_s_parser.add_parser("skip", help="skip number of lines")
     lines_skip_parser.add_argument("-n", "--number", default=0)
     lines_filter_parser = line_s_s_parser.add_parser("filter", help="filter lines by regex [*experimental]")
@@ -225,11 +236,29 @@ if __name__ == '__main__':
             appender = LineNumberAppender()
             for l in ins:
                 out.write(appender.append(l))
+        elif args.sub_command == "split":
+            for l in ins:
+                ls = l.rstrip("\n").split(args.delimiter)
+                for x in ls:
+                    out.write(x)
+                    out.write("\n")
+
         elif args.sub_command == "count":
             count = 0
             for l in ins:
                 count += 1
             out.write(f"{count}")
+        elif args.sub_command == "trim":
+            for l in ins:
+                l = l.rstrip("\n")
+                if args.left:
+                    l = l.lstrip(args.character)
+                if args.right:
+                    l = l.rstrip(args.character)
+                if args.all:
+                    l = l.strip(args.character)
+                out.write(l)
+                out.write("\n")
         elif args.sub_command == "skip":
             count = 0
             to_be_skipped = int(args.number)

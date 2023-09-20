@@ -16,6 +16,8 @@ steps:
     displayName: activate venv
   - script: pip install -r requirements.txt
     displayName: install requirements
+  - script: pytest
+    displayName: test source
   - script: rm -fr dist
     displayName: delete dist
   - script: python -m build

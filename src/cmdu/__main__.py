@@ -6,6 +6,7 @@ from cmdu import load_json, load_yaml, as_json, as_yaml
 from cmdu.check_list import CheckListItem
 from cmdu.hosts import HostItem
 from cmdu.lines import LineNumberAppender
+from cmdu.lines.cmd_set_nu import cmd_set_nu
 
 
 def json2yaml(data: str):
@@ -16,16 +17,8 @@ def yaml2json(data: str, indent=None):
     return as_json(load_yaml(data), indent)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        prog='cmdu',
-    )
-    parser.add_argument("--from-file", default=None)
-
-    sparser = parser.add_subparsers(dest="command")
-
-    file_mod_parser = sparser.add_parser("file-mod", help="modify file")
-    file_mod_sub_parser = file_mod_parser.add_subparsers(dest="sub_command")
+def set_file_mod_cmd(parser: argparse.ArgumentParser):
+    file_mod_sub_parser = parser.add_subparsers(dest="sub_command")
     file_mod_sub_hosts_parser = file_mod_sub_parser.add_parser("hosts", help="modify hosts file")
     file_mod_sub_hosts_sub_parser = file_mod_sub_hosts_parser.add_subparsers(dest="sub_sub_command")
     file_mod_sub_hosts_sub_mod_parser = file_mod_sub_hosts_sub_parser.add_parser("mod", help="add hosts")
@@ -39,8 +32,8 @@ if __name__ == '__main__':
                                                           help="delete all hosts")
     file_mod_sub_hosts_sub_mod_parser.add_argument("--host", required=False, help="host name")
 
-    check_list_parser = sparser.add_parser("check-list", help="make check list for lines")
-    check_list_s_parser = check_list_parser.add_subparsers(dest="sub_command")
+def set_check_list_cmd(parser: argparse.ArgumentParser):
+    check_list_s_parser = parser.add_subparsers(dest="sub_command")
     check_list_s_parser.add_parser("create", help="make check list by list of lines input")
     check_list_s_load_parser = check_list_s_parser.add_parser("load", help="make check list by list of lines input")
     check_list_s_load_g_input_parser = check_list_s_load_parser.add_mutually_exclusive_group()
@@ -62,8 +55,8 @@ if __name__ == '__main__':
     check_list_s_parser.add_parser("uncheck", help="uncheck list by list of lines input") \
         .add_argument("indexes", type=int, nargs="+", help="indexes of lines to be unchecked")
 
-    line_s_parser = sparser.add_parser("lines")
-    line_s_s_parser = line_s_parser.add_subparsers(dest="sub_command")
+def set_lines_cmd(parser: argparse.ArgumentParser):
+    line_s_s_parser = parser.add_subparsers(dest="sub_command")
     line_numberParser = line_s_s_parser.add_parser("set-nu", help="pad line number to each line")
 
     line_s_s_parser.add_parser("count", help="calculate number of lines")
@@ -87,8 +80,9 @@ if __name__ == '__main__':
                                                          help="filter not match lines by regex [*experimental]")
     lines_filter_not_parser.add_argument("-r", "--regex", default=None)
 
-    convert_parser = sparser.add_parser("convert")
-    convert_sub_parser = convert_parser.add_subparsers(dest="sub_command")
+
+def set_convert_cmd(parser: argparse.ArgumentParser):
+    convert_sub_parser = parser.add_subparsers(dest="sub_command")
     json2yamlParser = convert_sub_parser.add_parser("j2y", help="Convert json to yaml")
     yaml2jsonParser = convert_sub_parser.add_parser("y2j", help="Convert yaml to json")
     yaml2jsonParser.add_argument("-p", "--pretty", action=argparse.BooleanOptionalAction, default=False)
@@ -96,6 +90,24 @@ if __name__ == '__main__':
     asJsonParser = convert_sub_parser.add_parser("j2j", help="Convert json string to json of specific format")
     asJsonParser.add_argument("-p", "--pretty", action=argparse.BooleanOptionalAction, default=False)
     asJsonParser.add_argument("--indent", default=4)
+
+
+def first_cmd(parser: argparse.ArgumentParser):
+    sparser = parser.add_subparsers(dest="command")
+    set_file_mod_cmd(sparser.add_parser("file-mod", help="modify file"))
+    set_check_list_cmd(sparser.add_parser("check-list", help="make check list for lines"))
+    set_lines_cmd(sparser.add_parser("lines"))
+    set_convert_cmd(sparser.add_parser("convert"))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        prog='cmdu',
+    )
+    parser.add_argument("--from-file", default=None)
+    first_cmd(parser)
+
+
 
     args = parser.parse_args()
 
@@ -233,9 +245,7 @@ if __name__ == '__main__':
     elif args.command == "lines":
         cmd = args.command
         if args.sub_command == "set-nu":
-            appender = LineNumberAppender()
-            for l in ins:
-                out.write(appender.append(l))
+            cmd_set_nu(ins, out)
         elif args.sub_command == "split":
             for l in ins:
                 ls = l.rstrip("\n").split(args.delimiter)
